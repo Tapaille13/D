@@ -7,9 +7,6 @@ namespace WandEnhancer.Core
 {
     public static class EnhancerConfig
     {
-        private const int RemoteWebPanelDefaultPort = 3223;
-        private static readonly string RemoteWebPanelFallbackUrl = $"http://localhost:{RemoteWebPanelDefaultPort}/remote/";
-
         public class ResolveContext
         {
             public string Placeholder { get; set; }
@@ -227,29 +224,6 @@ namespace WandEnhancer.Core
                             SearchHints = new[] { "client-value-changed" },
                             Target = new Regex(@"#ct\(e,t\)\{t\.push\(e\.onValueSet\(e=>\{this\.status===i\.Connected&&e\.source!==g\.kL\.Remote&&this\.#Me\?\.send\(""client-value-changed"",\{instanceId:this\.#Pe,name:e\.name,value:e\.value,cheatId:e\.cheatId\}\)\}\)\),this\.#Be\(\)\}"),
                             Patch = "#ct(e,t){t.push(e.onValueSet(e=>{this.status===i.Connected&&e.source!==g.kL.Remote&&this.#Me?.send(\"client-value-changed\",{instanceId:this.#Pe,name:e.name,value:e.value,cheatId:e.cheatId}),this.__wandRemoteBridge?.valueChanged({trainerId:this.#ke,target:e.name,value:e.value,oldValue:e.oldValue,source:String(e.source??\"desktop\"),cheatId:e.cheatId})})),this.#Be()}"
-                        },
-                        new PatchEntry
-                        {
-                            Name = "remoteTooltipPreviewUrl",
-                            SearchHints = new[] { "remote_tooltip.scan_the_qr_code_or_visit_the_site", "remote_tooltip.connect_to_wand_remote" },
-                            Target = new Regex(@"remoteUrl=""wemodwebsite://remote"""),
-                            Patch = "remoteUrl=globalThis.__wandRemoteBridgeUrl||\"" + RemoteWebPanelFallbackUrl + "\""
-                        },
-                        new PatchEntry
-                        {
-                            Name = "remoteQrPreviewUrl",
-                            SearchHints = new[] { "resources/elements/remote-qr-code" },
-                            Resolver = new ResolveContext
-                            {
-                                Handler = (matchContent) =>
-                                {
-                                    var match = Regex.Match(matchContent, @"this\.canvasElement&&(\w+)\.mo");
-                                    return match.Success ? match.Groups[1].Value : null;
-                                },
-                                Placeholder = "<qr_writer>"
-                            },
-                            Target = new Regex(@"this\.canvasElement&&\w+\.mo\(this\.canvasElement,`\$\{\w+\.A\.wemodWebsiteUrl\}/remote`,this\.options\)"),
-                            Patch = "this.canvasElement&&<qr_writer>.mo(this.canvasElement,globalThis.__wandRemoteBridgeUrl||\"" + RemoteWebPanelFallbackUrl + "\",this.options)"
                         }
                     }
                 }
